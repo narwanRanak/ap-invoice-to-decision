@@ -1,3 +1,14 @@
+---
+title: Invoice to Decision
+emoji: 🧾
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+short_description: Invoice PDF to AP decision with live pipeline + dashboard
+---
+
 # Invoice → Decision: AP invoice processing (PS-1)
 
 A working process that takes a vendor invoice PDF (born-digital or scanned) and produces a clear, reasoned **APPROVED / NEEDS REVIEW / REJECTED** decision. Every stage in between is visible live, and a dashboard tracks history, status and outputs across runs.
@@ -59,7 +70,7 @@ See **[docs/PROCESS_MAP.md](docs/PROCESS_MAP.md)** for the full process map, rul
 
 ## Deploying (live link)
 
-The repo includes a `Dockerfile` and `render.yaml` (Render free tier). Push to GitHub → Render → *New Blueprint* → pick the repo. Set `ANTHROPIC_API_KEY` there if you want the Claude engine. Run history lives in `/tmp` on the container, so it resets on redeploy; use **Reset demo data** before a demo either way.
+Hosted on **Hugging Face Spaces** (Docker, free, no card): the YAML block at the top of this README is the Space config, and the `Dockerfile` is what it builds. To redeploy after changes: `python scripts/deploy_hf.py`. Optionally add `ANTHROPIC_API_KEY` as a Space secret to switch on the Claude engine. Run history lives in `/tmp` in the container, so it resets on restart; use **Reset demo data** before a demo either way. (`render.yaml` is also included for Render, which needs a card on file.)
 
 ## Known limitations / next steps
 
