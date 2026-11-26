@@ -1,0 +1,9 @@
+po_number,vendor_id,issue_date,description,amount,tax_rate,match_type,status,owner,cost_center
+PO-4500118,V005,2025-09-20,Northstar Analytics annual licence (120 seats),14400.0,0.0,2-way,open,Priya Raman (IT),CC-410 IT
+PO-4500123,V001,2026-10-28,Hydraulic line maintenance parts - Plant 2,8135.0,0.0825,3-way,open,Marcus Webb (Maintenance),CC-220 Plant 2
+PO-4500127,V002,2026-11-02,"FTL freight Chicago -> Dallas, November",11100.0,0.0,2-way,open,Dana Ortiz (Logistics),CC-310 Logistics
+PO-4500131,V003,2026-08-15,"Office fit-out Floor 3 - fixed fee, 3 milestones",18000.0,0.0,2-way,open,Elena Fischer (Facilities),CC-120 Facilities
+PO-4500135,V006,2026-10-20,Main panel upgrade - Building B,10330.0,0.06,2-way,open,Elena Fischer (Facilities),CC-120 Facilities
+PO-4500140,V004,2026-10-30,Outbound packaging - Q4 restock,3872.0,0.07,3-way,open,Dana Ortiz (Logistics),CC-310 Logistics
+PO-4500141,V004,2026-11-05,Packing tape restock,930.0,0.07,3-way,open,Dana Ortiz (Logistics),CC-310 Logistics
+PO-4500102,V001,2026-06-11,Bearings and seals - Plant 1,2410.0,0.0825,3-way,closed,Marcus Webb (Maintenance),CC-210 Plant 1

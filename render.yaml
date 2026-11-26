@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ap-invoice-to-decision
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: AP_EXTRACTOR
+        value: auto

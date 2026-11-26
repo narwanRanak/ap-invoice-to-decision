@@ -1,0 +1,50 @@
+[
+  {
+    "id": "happy-bluepeak",
+    "file": "bluepeak_INV-24817.pdf",
+    "kind": "Happy path",
+    "title": "Clean itemised invoice, explicit PO",
+    "blurb": "Text PDF, tax separate, goods fully received. Should sail through a 3-way match.",
+    "expected": "APPROVED"
+  },
+  {
+    "id": "happy-cobalt",
+    "file": "cobalt_CL-88213.pdf",
+    "kind": "Happy path",
+    "title": "Freight bill with surcharge inside tolerance",
+    "blurb": "Fuel surcharge not on the PO (+1.1%). Different labels and layout. Within the 2% / $250 policy.",
+    "expected": "APPROVED"
+  },
+  {
+    "id": "edge-split-po",
+    "file": "meridian_MOS-1188.pdf",
+    "kind": "Edge case 1",
+    "title": "Split PO: third invoice overbills",
+    "blurb": "Milestone 3 of a PO already billed 80%. Looks fine alone; cumulatively 110% of the PO.",
+    "expected": "NEEDS_REVIEW"
+  },
+  {
+    "id": "edge-scanned-nopo",
+    "file": "riverbend_RP-55102_scan.pdf",
+    "kind": "Edge case 2",
+    "title": "Scanned invoice, no PO reference",
+    "blurb": "Image-only skewed scan. Needs OCR, then the PO must be inferred from two open POs.",
+    "expected": "APPROVED"
+  },
+  {
+    "id": "edge-duplicate",
+    "file": "northstar_NS-2025-912_reminder.pdf",
+    "kind": "Edge case 3",
+    "title": "Disguised duplicate (past-due reminder)",
+    "blurb": "Re-send of an invoice already paid, with the number reformatted (912 vs 0912).",
+    "expected": "REJECTED"
+  },
+  {
+    "id": "edge-bank-change",
+    "file": "halden_HES-2291.pdf",
+    "kind": "Edge case 4",
+    "title": "Bank details changed (payment fraud signal)",
+    "blurb": "Matches the PO perfectly, but asks to pay a new bank account from a lookalike email domain.",
+    "expected": "NEEDS_REVIEW"
+  }
+]

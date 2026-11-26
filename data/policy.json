@@ -1,0 +1,13 @@
+{
+  "currency": "USD",
+  "header_tolerance_pct": 2.0,
+  "header_tolerance_abs": 250.0,
+  "line_price_tolerance_pct": 2.0,
+  "tax_rate_tolerance_pp": 0.25,
+  "auto_approve_limit": 25000.0,
+  "max_invoice_age_days": 180,
+  "duplicate_fuzzy_window_days": 45,
+  "min_field_confidence": 0.7,
+  "min_ocr_confidence": 0.8,
+  "inferred_po_min_score": 0.85
+}

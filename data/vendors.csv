@@ -1,0 +1,8 @@
+vendor_id,name,aliases,tax_id,status,payment_terms,contact_email,phone,bank_name,bank_account,routing
+V001,Bluepeak Industrial Supply Inc.,Bluepeak Industrial|Bluepeak Supply,36-4418207,approved,Net 30,ar@bluepeakindustrial.com,+1 (312) 555-0148,Great Lakes Commercial Bank,4402198871,071000013
+V002,Cobalt Logistics LLC,Cobalt Logistics|Cobalt Freight,75-2290314,approved,Net 15,billing@cobaltlogistics.com,+1 (214) 555-0192,Lone Star National Bank,9917004532,111000025
+V003,Meridian Office Solutions,Meridian Office|Meridian Workplace,31-5523870,approved,Net 30,accounts@meridianoffice.com,+1 (614) 555-0117,Buckeye Savings & Trust,2018833406,044000037
+V004,Riverbend Packaging Co.,Riverbend Packaging|Riverbend Pkg,62-1187455,approved,Net 30,invoices@riverbendpack.com,+1 (615) 555-0163,Cumberland Valley Bank,5530127789,064000017
+V005,Northstar Software Corp.,Northstar Software|Northstar,94-3376120,approved,Net 30,ar@northstarsoftware.io,+1 (415) 555-0136,Pacific Crest Bank,7781200459,121000248
+V006,Halden Electrical Services,Halden Electrical|Halden Electric,31-6640921,approved,Net 30,ap@haldenelectrical.com,+1 (614) 555-0175,First Lakeshore Bank,3309184471,041000124
+V007,Summit Electrical Contractors,Summit Electrical,31-7781023,blocked,Net 30,office@summitelectric.com,+1 (614) 555-0109,Ohio Valley Bank,1180032219,042000314

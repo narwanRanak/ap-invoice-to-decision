@@ -1,0 +1,5 @@
+vendor_id,invoice_number,invoice_date,po_number,subtotal,tax,total,status,source
+V005,NS-2025-0912,2026-10-02,PO-4500118,14400.0,0.0,14400.0,paid,ERP import
+V003,MOS-1107,2026-09-30,PO-4500131,7200.0,0.0,7200.0,paid,ERP import
+V003,MOS-1142,2026-10-31,PO-4500131,7200.0,0.0,7200.0,approved,ERP import
+V001,INV-23950,2026-07-01,PO-4500102,2410.0,198.83,2608.83,paid,ERP import

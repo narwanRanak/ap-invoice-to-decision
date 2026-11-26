@@ -1,0 +1,14 @@
+po_number,line,sku,description,qty,unit_price
+PO-4500118,1,NS-ANL-SEAT,Northstar Analytics - annual seat licence,120,120.0
+PO-4500123,1,BP-HX220,Hydraulic hose assembly 3/4in x 10ft,40,86.5
+PO-4500123,2,BP-VLV-115,Stainless ball valve 1in,25,142.0
+PO-4500123,3,BP-GSK-09,Flange gasket kit,60,18.75
+PO-4500127,1,FTL-CHI-DAL,Full truckload freight Chicago to Dallas,6,1850.0
+PO-4500131,1,FITOUT-F3,Office fit-out Floor 3 (fixed fee),1,18000.0
+PO-4500135,1,LAB-ELEC,Electrician labour (hours),64,95.0
+PO-4500135,2,MAT-PANEL,"Panel, breakers and materials (lot)",1,4250.0
+PO-4500140,1,CB-181210,Corrugated box 18x12x10 double wall,2000,1.42
+PO-4500140,2,SW-18-80,Stretch wrap 18in x 1500ft roll,48,21.5
+PO-4500141,1,TP-48-110,Packing tape 48mm x 110m,300,3.1
+PO-4500102,1,BR-6204,Deep groove bearing 6204,100,14.1
+PO-4500102,2,SL-3550,Shaft seal 35x50,100,10.0
