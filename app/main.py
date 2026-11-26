@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+import threading
 import uuid
 from collections import Counter
 
@@ -17,6 +18,20 @@ from .pipeline import runner
 
 app = FastAPI(title="AP Invoice-to-Decision", version="1.0")
 db.init()
+
+
+def _warm_ocr() -> None:
+    """Load the OCR model and run one pass at startup so the first scanned invoice isn't slow."""
+    try:
+        from .pipeline.reader import read_pdf
+        scan = next((s for s in json.loads((config.SAMPLES_DIR / "manifest.json").read_text()) if "scan" in s["file"]), None)
+        if scan:
+            read_pdf(str(config.SAMPLES_DIR / scan["file"]))
+    except Exception as e:  # warm-up is best-effort only
+        print(f"OCR warm-up skipped: {e}")
+
+
+threading.Thread(target=_warm_ocr, daemon=True).start()
 
 MAX_UPLOAD = 15 * 1024 * 1024
 

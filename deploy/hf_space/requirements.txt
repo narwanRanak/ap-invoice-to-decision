@@ -1,0 +1,7 @@
+pymupdf
+reportlab
+rapidocr_onnxruntime
+anthropic
+python-multipart
+uvicorn
+fastapi
