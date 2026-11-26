@@ -28,6 +28,8 @@ class Cell:
     x1: float
     text: str
     conf: float = 1.0
+    page: int = 0
+    box: tuple = (0.0, 0.0, 0.0, 0.0)   # normalised (x0, y0, x1, y1) on the page, 0..1 - for evidence highlighting
 
 
 @dataclass
@@ -53,8 +55,8 @@ class Document:
         return "\n".join(r.text for r in self.rows)
 
 
-def _group_rows(items: list[tuple[float, float, float, float, str, float]], gap_factor: float) -> list[Row]:
-    """items: (x0, y0, x1, y1, text, conf). Group into rows by vertical centre, then merge into cells."""
+def _group_rows(items: list[tuple], gap_factor: float) -> list[Row]:
+    """items: (x0, y0, x1, y1, text, conf, page, nbox). Group into rows by vertical centre, then merge into cells."""
     if not items:
         return []
     heights = [it[3] - it[1] for it in items]
@@ -75,14 +77,16 @@ def _group_rows(items: list[tuple[float, float, float, float, str, float]], gap_
         r.sort(key=lambda it: it[0])
         cells: list[Cell] = []
         h = median([i[3] - i[1] for i in r])
-        for x0, y0, x1, y1, txt, conf in r:
+        for x0, y0, x1, y1, txt, conf, page, nb in r:
             if cells and x0 - cells[-1].x1 < gap_factor * h:
                 c = cells[-1]
                 c.text += " " + txt
                 c.x1 = x1
                 c.conf = min(c.conf, conf)
+                b = c.box
+                c.box = (min(b[0], nb[0]), min(b[1], nb[1]), max(b[2], nb[2]), max(b[3], nb[3]))
             else:
-                cells.append(Cell(x0, x1, txt, conf))
+                cells.append(Cell(x0, x1, txt, conf, page, nb))
         out.append(Row(cy, cells))
     return out
 
@@ -92,8 +96,9 @@ def read_pdf(path: str) -> Document:
     words = []
     for pno, page in enumerate(doc):
         offset = pno * 10000
+        W, H = page.rect.width, page.rect.height
         for x0, y0, x1, y1, w, *_ in page.get_text("words"):
-            words.append((x0, y0 + offset, x1, y1 + offset, w, 1.0))
+            words.append((x0, y0 + offset, x1, y1 + offset, w, 1.0, pno, (x0 / W, y0 / H, x1 / W, y1 / H)))
     text_chars = sum(len(w[4]) for w in words)
     if text_chars >= 40:
         return Document("text-layer", len(doc), _group_rows(words, gap_factor=0.9), None, doc[0].rect.width)
@@ -111,12 +116,13 @@ def read_pdf(path: str) -> Document:
         for box, txt, conf in result or []:
             xs = [p[0] for p in box]
             ys = [p[1] for p in box]
-            boxes.append((min(xs), min(ys) + offset, max(xs), max(ys) + offset, txt, float(conf)))
+            nb = (min(xs) / pix.width, min(ys) / pix.height, max(xs) / pix.width, max(ys) / pix.height)
+            boxes.append((min(xs), min(ys) + offset, max(xs), max(ys) + offset, txt, float(conf), pno, nb))
             confs.append(float(conf))
     ocr_conf = round(sum(confs) / len(confs), 3) if confs else 0.0
     return Document("ocr", len(doc), _group_rows(boxes, gap_factor=1.2), ocr_conf, width)
 
 
-def render_pages_png(path: str, dpi: int = 110) -> list[bytes]:
+def render_page_png(path: str, page: int = 0, dpi: int = 144) -> bytes:
     doc = pymupdf.open(path)
-    return [page.get_pixmap(dpi=dpi).tobytes("png") for page in doc]
+    return doc[page].get_pixmap(dpi=dpi).tobytes("png")

@@ -9,7 +9,7 @@ import uuid
 from collections import Counter
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -106,6 +106,51 @@ def run_file(run_id: str):
     return FileResponse(r["file_path"], media_type="application/pdf")
 
 
+_page_cache: dict[tuple, bytes] = {}
+
+
+@app.get("/api/runs/{run_id}/page/{page}.png")
+def run_page(run_id: str, page: int):
+    """The invoice page as an image, so the UI can draw evidence highlights on top of it."""
+    r = db.get_run(run_id)
+    if not r:
+        raise HTTPException(404, "run not found")
+    key = (r["file_path"], page)
+    if key not in _page_cache:
+        from .pipeline.reader import render_page_png
+        try:
+            _page_cache[key] = render_page_png(r["file_path"], page)
+        except Exception:
+            raise HTTPException(404, "page not found")
+    return Response(_page_cache[key], media_type="image/png", headers={"Cache-Control": "max-age=3600"})
+
+
+@app.get("/api/runs/{run_id}/audit")
+def audit_packet(run_id: str):
+    """Everything an auditor needs to reproduce the decision, as one JSON document."""
+    r = db.get_run(run_id)
+    if not r or not r["result"]:
+        raise HTTPException(404, "run not found or not finished")
+    res = r["result"]
+    fields = {k: v for k, v in (res.get("fields") or {}).items() if k != "evidence"}
+    packet = {
+        "audit_packet_version": 1,
+        "run": {k: r[k] for k in ("id", "created_at", "source", "filename", "file_hash", "engine", "duration_ms")},
+        "decision": {"automated": r["decision"], "final": r["final_status"], "headline": r["headline"],
+                     "routed_to": res["decision"].get("routed_to"), "next_actions": res["decision"].get("next_actions"),
+                     "controls_passed": res["decision"].get("controls_passed", [])},
+        "human_review": r["review"],
+        "findings": res.get("findings", []),
+        "extracted_fields": fields,
+        "stages": [{k: st.get(k) for k in ("stage", "label", "status", "summary", "duration_ms")} for st in res.get("stages", [])],
+        "po_match": res.get("po"),
+        "vendor_check": res.get("vendor"),
+        "policy_applied": config.load_policy(),
+        "generated_at": db.now_iso(),
+    }
+    return JSONResponse(packet, headers={"Content-Disposition": f'attachment; filename="audit-{run_id}.json"'})
+
+
 @app.get("/api/runs/{run_id}/events")
 async def run_events(run_id: str):
     """Server-sent events: one event per stage start / finish, then 'done'."""
@@ -174,7 +219,28 @@ def stats():
         "value_blocked": val([r for r in runs if r["final_status"] == "REJECTED"]),
         "avg_duration_ms": int(sum(durations) / len(durations)) if durations else None,
         "top_reasons": reasons.most_common(8),
+        "roi": _roi(runs, auto),
     }
+
+
+# Buyer-facing ROI assumptions (shown in the UI next to the numbers)
+MANUAL_MIN_PER_INVOICE = 12      # open, key in, find PO, match, decide - typical manual AP handling time
+REVIEW_MIN_PER_EXCEPTION = 4     # an exception still needs a person, but arrives pre-investigated
+LOADED_COST_PER_HOUR = 45.0      # fully loaded AP specialist cost, USD
+
+
+def _roi(runs: list[dict], auto: Counter) -> dict:
+    n = len(runs)
+    exceptions = n - auto.get("APPROVED", 0)
+    manual_min = n * MANUAL_MIN_PER_INVOICE
+    actual_min = exceptions * REVIEW_MIN_PER_EXCEPTION
+    saved_min = max(0, manual_min - actual_min)
+    prevented = round(sum(r["total"] or 0 for r in runs if r["decision"] == "REJECTED"
+                          or "BANK_DETAILS_CHANGED" in ((r["result"] or {}).get("reason_codes") or [])), 2)
+    return {"minutes_saved": saved_min, "cost_saved": round(saved_min / 60 * LOADED_COST_PER_HOUR, 2),
+            "risk_value_stopped": prevented,
+            "assumptions": f"{MANUAL_MIN_PER_INVOICE} min manual handling per invoice, {REVIEW_MIN_PER_EXCEPTION} min per "
+                           f"pre-investigated exception, ${LOADED_COST_PER_HOUR:.0f}/h loaded AP cost"}
 
 
 @app.get("/api/reference")

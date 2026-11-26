@@ -6,10 +6,14 @@ A working process that takes a vendor invoice PDF (born-digital or scanned) and 
 PDF ─► Intake ─► Read (text / OCR) ─► Extract ─► Validate ─► Verify vendor ─► Duplicate check ─► Match to PO ─► Decide
 ```
 
-- **Live run view:** each of the 8 stages lights up as it executes, with its result, the findings it raised, and expandable detail (line match tables, PO consumption bar, checklists).
-- **Decision card:** decision, one-line reason, who it's routed to, next actions, "why it was approved" evidence, a ready-to-send vendor email when the vendor has to act, and reviewer Approve/Reject with a required audit note.
-- **Dashboard:** KPIs (straight-through rate, value on hold, payments prevented, average processing time), decision mix, top hold/reject reasons, and searchable, filterable run history.
-- **Reference data:** POs (with billed / remaining updating live), vendor master, AP ledger, goods receipts, policy thresholds.
+**Live:** https://ranak363-invoice-to-decision.hf.space
+
+- **Live run view:** a progress bar plus an activity log stream each of the 8 stages as it executes, beside the invoice itself. Each stage shows its result, the findings it raised, and expandable detail (line match, PO consumption bar, checklists).
+- **Evidence highlighting:** every extracted value is located on the page. Hover a field or a flag, such as `BANK_DETAILS_CHANGED`, and the exact spot on the invoice lights up. Flagged spots are boxed in red automatically.
+- **Decision:** Ready to pay / On hold / Rejected, with a one-line reason, owner, next actions, the controls that passed, a ready-to-send vendor email when the vendor has to act, and reviewer Approve/Reject with a required audit note.
+- **Audit packet:** a one-click JSON export of the full decision record (inputs, findings, policy applied, reviewer) for any run.
+- **Invoices inbox (dashboard):** KPIs (straight-through rate, value on hold, ready to pay, time to decision), status tabs and search, reasons invoices were stopped, and a **value-delivered** panel (AP hours and cost saved, risky payments stopped, projection at 1,000 invoices/month).
+- **Vendors & POs:** POs with billed / remaining updating live, vendor master, AP ledger, goods receipts, policy thresholds.
 
 ## Quick start
 
@@ -21,7 +25,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 That's all. The app runs fully offline by default (local OCR + a layout-aware parser). To use Claude for extraction, copy `.env.example` to `.env` and set `ANTHROPIC_API_KEY`. The sidebar shows which engine is active. If a Claude call ever fails, the run automatically falls back to the local engine and says so on the stage.
 
 ```bash
-.venv/bin/python -m pytest -q          # 21 end-to-end + unit tests
+.venv/bin/python -m pytest -q          # 23 end-to-end + unit tests
 .venv/bin/python scripts/generate_data.py          # regenerate reference data + 6 demo invoices
 .venv/bin/python scripts/generate_extra_tests.py   # regenerate 4 extra "unseen" invoices in test_inputs/
 ```

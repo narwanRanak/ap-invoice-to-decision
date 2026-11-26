@@ -110,3 +110,26 @@ def test_garbage_pdf_goes_to_a_person_not_crash(tmp_path):
     assert r["status"] == "completed"
     assert r["decision"] == "NEEDS_REVIEW"
     assert "NOT_AN_INVOICE" in blocking_codes(r)
+
+
+def test_evidence_boxes_located_for_key_fields():
+    r = run(ROOT / "samples" / "riverbend_RP-55102_scan.pdf")  # scanned: boxes come from OCR
+    ev = r["result"]["fields"]["evidence"]
+    for key in ("invoice_number", "invoice_date", "total", "subtotal", "line_0", "line_1"):
+        assert key in ev, key
+        x0, y0, x1, y1 = ev[key]["box"]
+        assert 0 <= x0 < x1 <= 1 and 0 <= y0 < y1 <= 1
+
+
+def test_audit_packet_and_page_image():
+    from fastapi.testclient import TestClient
+    from app.main import app
+    c = TestClient(app)
+    rid = db.list_runs()[0]["id"]
+    pkt = c.get(f"/api/runs/{rid}/audit")
+    assert pkt.status_code == 200 and "attachment" in pkt.headers["content-disposition"]
+    body = pkt.json()
+    assert body["decision"]["automated"] in ("APPROVED", "NEEDS_REVIEW", "REJECTED") and body["policy_applied"]
+    img = c.get(f"/api/runs/{rid}/page/0.png")
+    assert img.status_code == 200 and img.content[:4] == b"\x89PNG"
+    assert "roi" in c.get("/api/stats").json()

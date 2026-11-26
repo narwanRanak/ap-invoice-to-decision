@@ -11,7 +11,7 @@ from pathlib import Path
 import pymupdf
 
 from .. import config, db
-from . import checks, decide as decide_mod, extract_rules
+from . import checks, decide as decide_mod, evidence, extract_rules
 from .normalize import fmt_money, invoice_key
 from .reader import read_pdf
 
@@ -123,7 +123,8 @@ def _run(run_id: str, pdf_path: str, filename: str) -> None:
                 f.append(checks.Finding("UNREADABLE", "hold", "read", "Could not read any text from the document.", "data", {}))
             summary = (f"Scanned image - OCR recovered {len(doc.rows)} lines at {doc.ocr_confidence:.1%} confidence"
                        if doc.method == "ocr" else f"Born-digital PDF - read {len(doc.rows)} lines from the text layer")
-            d = {"method": doc.method, "lines": len(doc.rows), "ocr_confidence": doc.ocr_confidence, "text": doc.text}
+            d = {"method": doc.method, "lines": len(doc.rows), "ocr_confidence": doc.ocr_confidence, "text": doc.text,
+                 "pages": doc.pages}
             return summary, d, f
         stage("read", s_read)
 
@@ -140,6 +141,10 @@ def _run(run_id: str, pdf_path: str, filename: str) -> None:
                 fx = extract_rules.extract(ctx["doc"])
             fx.setdefault("notices", [])
             fx.setdefault("confidence", {})
+            try:
+                fx["evidence"] = evidence.locate(ctx["doc"], fx)
+            except Exception:  # highlighting is a nice-to-have; never fail a run over it
+                fx["evidence"] = {}
             ctx["fx"] = fx
             db.update_run(run_id, vendor_name=fx.get("vendor_name"), invoice_number=fx.get("invoice_number"),
                           po_number=fx.get("po_number"), total=fx.get("total"), engine=fx.get("engine"))
